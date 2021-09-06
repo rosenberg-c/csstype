@@ -3,12 +3,12 @@
     "module": "commonjs",
     "target": "es6",
     "lib": ["es7", "es2015.iterable", "dom"],
-    "sourceMap": false,
     "noEmit": true,
     "strict": true,
     "noUnusedLocals": true,
     "allowSyntheticDefaultImports": true,
-    "allowJs": false
+    "allowJs": false,
+    "inlineSourceMap": true
   },
   "exclude": ["__tests__/__fixtures__"]
 }
