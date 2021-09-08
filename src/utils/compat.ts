@@ -1,12 +1,5 @@
-import {
-  Combinator,
-  combinators,
-  Component,
-  componentData,
-  componentGroupData,
-  Entity,
-  EntityType,
-} from '../syntax/parser';
+import { definitionSyntax, DSNodeGroup } from 'css-tree';
+import { warn } from './logger';
 
 const importsCache: { [cssPath: string]: MDN.CompatData | undefined } = {};
 
@@ -93,48 +86,39 @@ export function compatNames(compat: MDN.Compat, name: string, onlyRemoved = fals
   return properties;
 }
 
-export function compatSyntax(data: MDN.CompatData, entities: EntityType[]): EntityType[] {
-  const compatEntities: EntityType[] = [];
+export function compatSyntax(data: MDN.CompatData, node: DSNodeGroup): DSNodeGroup {
+  const nodeClone = definitionSyntax.parse(definitionSyntax.generate(node));
 
-  for (const entity of entities) {
-    if (entity.entity === Entity.Component) {
-      switch (entity.component) {
-        case Component.Keyword: {
-          if (entity.value in data) {
-            const compats = getCompats(data[entity.value]);
-            if (compats.every(compat => !isAddedBySome(compat))) {
-              // The keyword needs to be added by some browsers so we remove previous
-              // combinator and skip this keyword
-              compatEntities.pop();
-              continue;
-            }
-          }
+  definitionSyntax.walk(nodeClone, node => {
+    if (node.type === 'Keyword') {
+      if (node.name in data) {
+        warn('TODO: Something needs to be done with', node.name, 'compat data');
+        // const compats = getCompats(data[node.name]);
+        // if (compats.every(compat => !isAddedBySome(compat))) {
+        //   // The keyword needs to be added by some browsers so we remove previous
+        //   // combinator and skip this keyword
+        //   nodeClone.pop();
+        //   continue;
+        // }
+      }
 
-          const alternatives = alternativeKeywords(data, entity.value);
+      const alternatives = alternativeKeywords(data, node.name);
 
-          if (alternatives.length > 0) {
-            const alternativeEntities: EntityType[] = [entity];
+      if (alternatives.length > 0) {
+        warn('TODO: Something needs to be done with', node.name, 'alternative keywords');
+        // const alternativeEntities: EntityType[] = [entity];
 
-            for (const keyword of alternatives) {
-              alternativeEntities.push(combinators[Combinator.SingleBar], componentData(Component.Keyword, keyword));
-            }
+        // for (const keyword of alternatives) {
+        //   alternativeEntities.push(combinators[Combinator.SingleBar], componentData(Component.Keyword, keyword));
+        // }
 
-            compatEntities.push(componentGroupData(alternativeEntities));
-            continue;
-          }
-          break;
-        }
-        case Component.Group: {
-          compatEntities.push(componentGroupData(compatSyntax(data, entity.entities), entity.multiplier));
-          continue;
-        }
+        // nodeClone.push(componentGroupData(alternativeEntities));
+        // continue;
       }
     }
+  });
 
-    compatEntities.push(entity);
-  }
-
-  return compatEntities;
+  return nodeClone;
 }
 
 function alternativeKeywords(data: MDN.CompatData, value: string): string[] {
