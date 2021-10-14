@@ -18890,7 +18890,8 @@ export namespace Property {
 
   export type Isolation = Globals | "auto" | "isolate";
 
-  export type JustifyContent = Globals | DataType.ContentDistribution | DataType.ContentPosition | "left" | "normal" | "right" | (string & {});
+  export type JustifyContentExplicit = Globals | DataType.ContentDistribution | DataType.ContentPosition | "left" | "normal" | "right";
+  export type JustifyContent = JustifyContentExplicit & (string & {})
 
   export type JustifyItems = Globals | DataType.SelfPosition | "baseline" | "left" | "legacy" | "normal" | "right" | "stretch" | (string & {});
 
